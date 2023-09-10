@@ -1,0 +1,93 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR X11)
+
+/dts-v1/;
+#include "suniv-f1c100s.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+
+/ {
+	model = "Planck Pi";
+	compatible = "allwinner,suniv-f1c200s",
+			 "allwinner,suniv-f1c100s";
+
+	aliases {
+		mmc0 = &mmc0;
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	reg_vcc3v3: vcc3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		status = "okay";
+
+		sys_led {
+			label = "led:sys";
+			gpios = <&pio 4 3 GPIO_ACTIVE_LOW>; /* PE3 */
+			default-state = "on";
+		};
+
+		user_led {
+			label = "led:user";
+			gpios = <&pio 4 4 GPIO_ACTIVE_LOW>; /* PE4 */
+		};
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+		autorepeat;
+		status = "okay";
+
+		key {
+			label = "GPIO KEY Enter";
+			linux,code = <KEY_ENTER>;
+			gpios = <&pio 4 2 GPIO_ACTIVE_LOW>; /* PE2 */
+		};
+	};
+};
+
+&spi0 {
+	status = "okay";
+};
+
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_pe_pins>;
+	status = "okay";
+};
+
+&mmc0 {
+	broken-cd;
+	bus-width = <4>;
+	disable-wp;
+	status = "okay";
+	vmmc-supply = <&reg_vcc3v3>;
+};
+
+&otg_sram {
+	status = "okay";
+};
+
+&usb_otg {
+	dr_mode = "otg"; /* host device */
+	status = "okay";
+};
+
+&usbphy {
+	status = "okay";
+	usb0_id_det-gpios = <&pio 4 5 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* PE5 */
+};
+
+&i2c0 {
+	status = "disabled";
+};
+

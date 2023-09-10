@@ -1,0 +1,24 @@
+#!/bin/sh
+
+mount -t configfs none /sys/kernel/config
+mkdir /sys/kernel/config/usb_gadget/g1
+cd /sys/kernel/config/usb_gadget/g1
+echo "0x2207" > idVendor
+echo "0x0006" > idProduct
+mkdir functions/ffs.adb
+mkdir functions/rndis.rn0
+mkdir configs/c.1
+echo 120 > configs/c.1/MaxPower
+ln -s  functions/ffs.adb configs/c.1
+ln -s functions/rndis.rn0 configs/c.1
+mkdir /dev/usb-ffs -m 0770
+mkdir /dev/usb-ffs/adb -m 0770
+mount -t functionfs adb /dev/usb-ffs/adb
+adbd &
+sleep 1
+echo musb-hdrc.1.auto > UDC
+
+ifconfig usb0 192.168.137.2
+ifconfig usb0 up
+route add default gw 192.168.137.1
+
